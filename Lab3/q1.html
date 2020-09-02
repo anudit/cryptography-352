@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="author" content="">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <h1>Vigenere Cipher - Encryption & Decryption</h1>
+    <div class="cage">
+        <form id="encdecForm">
+            <fieldset id="inputField">
+                <div class="row">
+                    <div class="label"><label for="ip">Plaintext : </label></div>
+                    <div class="box"><input type="text" id="ip" /></div>
+                </div><br clear="both" />
+                <div class="row">
+                    <div class="label"><label for="key"> Key : </label></div>
+                    <div class="box"><input type="text" id="key" /></div>
+                </div><br clear="both" />
+                <div class="row">
+                    <label for="enc">Encrypt</label><input type="radio" name="slct" id="enc" value="encrypt" checked="checked" />
+                    <label for="dec">Decrypt</label><input type="radio" name="slct" id="dec" value="decrypt" />
+                </div><br clear="both" /><hr />
+                <div class="row">
+                    <div class="label"><label for="result">Result : </label></div>
+                    <div class="box"><input type="text" id="result" /></div>
+                </div><br clear="both" />
+                <div class="row">
+                    <input type="submit" value="Convert" name="convert" />
+                    <input type="reset" value="Reset" name="resetButton" />
+                </div><br clear="both" />
+            </fieldset>
+        </form>
+    </div>
+
+  <script>
+      var addEvent = (document.addEventListener) ?
+    function (elm,ev,cb) {elm.addEventListener(ev,cb,false);} :
+function (elm,ev,cb) {elm.attachEvent("on"+ev, function(e){cb.call(elm, e);});};
+
+addEvent(window, "load", function init() {
+    var formField = document.getElementById("encdecForm");
+    var inputs = formField.getElementsByTagName("input");
+    addEvent(formField, "submit", function (evt) {
+        (evt.preventDefault) ? evt.preventDefault() : evt.returnValue=false;
+        var values = DomController.getValues(inputs);
+        if (!values.flg) {DomController.setResult("( N/A )"); return false;}
+        var isEncrypt = DomController.checkRadio(inputs);
+        var ipLength = values.ip.length;
+        var keyLength = values.key.length;
+        while (ipLength > keyLength) {
+            values.key += values.key;
+            keyLength = values.key.length;
+        }
+        for (var s=0, _1=_2=_3=result=""; s<ipLength; s++) {
+            _1 = VigenereAlgorithm.assign(values.ip.charAt(s));
+            _2 = VigenereAlgorithm.assign(values.key.charAt(s));
+            _3 = VigenereAlgorithm[isEncrypt](_1, _2);
+
+            result += VigenereAlgorithm.assign(_3);
+        }
+        if (result == -1) {DomController.setResult("Error Occur"); return false;}
+        DomController.setResult(result);
+    });
+});
+
+var DomController = {
+    getValues : function (inputs) {
+        var values = {};
+        values.flg = true;
+        for (var i=0, l=inputs.length; i<l; i++) {
+            switch (inputs[i].id) {
+                case "ip" : values.ip = inputs[i].value.toLowerCase(); break;
+                case "key": values.key= inputs[i].value.toLowerCase(); break;
+            }
+        }
+        for (target in values) {
+            if (values[target] !== values.flg) {
+                if (values[target].match(/[^A-Z]/i) || values[target] == "") {
+                    values.flg = false;
+                }
+            }
+        }
+        return values;
+    },
+    checkRadio : function (inputs) {
+        for (var i=0, l=inputs.length; i<l; i++) {
+            if (inputs[i].type === "radio" && inputs[i].checked) {
+                return inputs[i].value;
+            }
+        }
+    },
+    setResult : function (str) {
+        document.getElementById("result").value = str;
+    }
+}
+
+var VigenereAlgorithm = {
+    encrypt : function (source, key){
+        return (source + key) % 26;
+    },
+    decrypt : function (cipher, key){
+        return (cipher - key + 26) % 26;
+    },
+    assign : function (value) {
+        var abc = "abcdefghijklmnopqrstuvwxyz";
+        return (isFinite(value)) ? abc.charAt(+value) : abc.indexOf(value);
+    }
+}
+
+
+  </script>
+</body>
+
+</html>
